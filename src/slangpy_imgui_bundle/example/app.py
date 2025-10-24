@@ -1,7 +1,11 @@
 from typing import Unpack
+from imgui_bundle import imgui
 from reactivex.subject import BehaviorSubject
 from slangpy_imgui_bundle.app import App
-from slangpy_imgui_bundle.example.imgui_demo_window import ImGuiDemoWindow
+from slangpy_imgui_bundle.example.demo_windows import (
+    ImGuiDemoWindow,
+    ImPlot3DDemoWindow,
+)
 from slangpy_imgui_bundle.render_targets.dockspace import Dockspace, DockspaceArgs
 from slangpy_imgui_bundle.render_targets.menu import (
     Menu,
@@ -10,7 +14,8 @@ from slangpy_imgui_bundle.render_targets.menu import (
 
 
 class ExampleDockspaceArgs(DockspaceArgs):
-    demo_window_opened: BehaviorSubject[bool]
+    imgui_demo_opened: BehaviorSubject[bool]
+    implot_demo_opened: BehaviorSubject[bool]
 
 
 class ExampleDockspace(Dockspace):
@@ -24,18 +29,36 @@ class ExampleDockspace(Dockspace):
                     MenuItem(
                         device=self.device,
                         name="ImGui Demo Window",
-                        open=kwargs["demo_window_opened"],
+                        open=kwargs["imgui_demo_opened"],
                         on_open_changed=lambda opened: kwargs[
-                            "demo_window_opened"
+                            "imgui_demo_opened"
                         ].on_next(opened),
-                    )
+                    ),
+                    MenuItem(
+                        device=self.device,
+                        name="ImPlot Demo Window",
+                        open=kwargs["implot_demo_opened"],
+                        on_open_changed=lambda opened: kwargs[
+                            "implot_demo_opened"
+                        ].on_next(opened),
+                    ),
                 ],
             )
         ]
 
+    def build(self, dockspace_id: int) -> None:
+        # Build dock space.
+        if not imgui.internal.dock_builder_get_node(dockspace_id):
+            imgui.internal.dock_builder_remove_node(dockspace_id)
+            main_id = imgui.internal.dock_builder_add_node(dockspace_id)
+            imgui.internal.dock_builder_dock_window("Dear ImGui Demo", main_id)
+            imgui.internal.dock_builder_dock_window("ImPlot3D Demo", main_id)
+            imgui.internal.dock_builder_finish(dockspace_id)
+
 
 class ExampleApp(App):
-    _demo_window_opened: BehaviorSubject[bool] = BehaviorSubject(True)
+    _imgui_demo_opened: BehaviorSubject[bool] = BehaviorSubject(True)
+    _implot_demo_opened: BehaviorSubject[bool] = BehaviorSubject(False)
 
     def __init__(self) -> None:
         super().__init__([])
@@ -43,13 +66,19 @@ class ExampleApp(App):
         self._render_targets = [
             ImGuiDemoWindow(
                 device=self.device,
-                open=self._demo_window_opened,
-                on_close=lambda: self._demo_window_opened.on_next(False),
-            )
+                open=self._imgui_demo_opened,
+                on_close=lambda: self._imgui_demo_opened.on_next(False),
+            ),
+            ImPlot3DDemoWindow(
+                device=self.device,
+                open=self._implot_demo_opened,
+                on_close=lambda: self._implot_demo_opened.on_next(False),
+            ),
         ]
 
         self._dockspace = ExampleDockspace(
             device=self.device,
             window_size=self._curr_window_size,
-            demo_window_opened=self._demo_window_opened,
+            imgui_demo_opened=self._imgui_demo_opened,
+            implot_demo_opened=self._implot_demo_opened,
         )

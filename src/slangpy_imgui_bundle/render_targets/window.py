@@ -17,7 +17,6 @@ class WindowArgs(RenderArgs):
 
 
 class Window(RenderTarget):
-    name: str = "Window"
     size: Tuple[int, int] = (400, 300)
     size_min: Tuple[float, float] = (200, 150)
     size_max: Tuple[float, float] = (imgui.FLT_MAX, imgui.FLT_MAX)
