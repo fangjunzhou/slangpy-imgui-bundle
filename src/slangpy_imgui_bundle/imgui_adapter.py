@@ -271,7 +271,7 @@ class ImguiAdapter:
         self.io.fonts.tex_id = self._font_texture.shared_handle.value
         self.io.fonts.clear_tex_data()
 
-    def resize(self, width: int, height: int, fb_scale: float = 4) -> None:
+    def resize(self, width: int, height: int, fb_scale: float = 1.0) -> None:
         """Method to handle window resizing.
 
         :param width: The new width of the window.
@@ -283,9 +283,9 @@ class ImguiAdapter:
         # Update framebuffer scale.
         self.device.wait()
         if width > 0 and height > 0:
-            self.surface.configure(width * fb_scale, height * fb_scale)
+            self.surface.configure(int(width * fb_scale), int(height * fb_scale))
             self.frame_buffer = self._create_frame_buffer(
-                width * fb_scale, height * fb_scale
+                int(width * fb_scale), int(height * fb_scale)
             )
         else:
             self.surface.unconfigure()
