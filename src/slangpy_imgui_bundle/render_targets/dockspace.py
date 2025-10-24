@@ -2,22 +2,19 @@
 A dockspace implementation to host imgui windows, menus, and status bar.
 """
 
-from dataclasses import dataclass
-from typing import List
-import slangpy as spy
+from typing import List, Unpack
 from imgui_bundle import imgui, imgui_ctx
 from reactivex import Observable
 import reactivex.operators as ops
 from pyglm import glm
 
 from slangpy_imgui_bundle.render_targets.render_target import (
-    RenderContext,
+    RenderArgs,
     RenderTarget,
 )
 
 
-@dataclass
-class DockspaceContext(RenderContext):
+class DockspaceArgs(RenderArgs):
     window_size: Observable[glm.ivec2]
 
 
@@ -27,13 +24,13 @@ class Dockspace(RenderTarget):
 
     _window_size: glm.ivec2
 
-    def __init__(self, context: DockspaceContext) -> None:
-        super().__init__(context)
+    def __init__(self, **kwargs: Unpack[DockspaceArgs]) -> None:
+        super().__init__(**kwargs)
 
         def update_window_size(size: glm.ivec2) -> None:
             self._window_size = glm.ivec2(size)
 
-        context.window_size.pipe(ops.distinct()).subscribe(update_window_size)
+        kwargs["window_size"].pipe(ops.distinct()).subscribe(update_window_size)
 
     def build(self, dockspace_id: int) -> None:
         """Build the dockspace layout.

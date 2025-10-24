@@ -11,7 +11,7 @@ import time
 from reactivex.subject import BehaviorSubject
 
 import slangpy_imgui_bundle
-from slangpy_imgui_bundle.render_targets.dockspace import Dockspace, DockspaceContext
+from slangpy_imgui_bundle.render_targets.dockspace import Dockspace
 from slangpy_imgui_bundle.imgui_adapter import ImguiAdapter
 from slangpy_imgui_bundle.render_targets.render_target import RenderTarget
 
@@ -74,10 +74,8 @@ class App:
 
         # Create dockspace.
         self._dockspace = Dockspace(
-            DockspaceContext(
-                device=self.device,
-                window_size=self._curr_window_size,
-            )
+            device=self.device,
+            window_size=self._curr_window_size,
         )
 
         # Setup app states.
