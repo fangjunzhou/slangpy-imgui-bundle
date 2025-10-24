@@ -11,12 +11,9 @@ import time
 from reactivex.subject import BehaviorSubject
 
 import slangpy_imgui_bundle
-from slangpy_imgui_bundle.render_targets.dockspace import Dockspace
+from slangpy_imgui_bundle.render_targets.dockspace import Dockspace, DockspaceContext
 from slangpy_imgui_bundle.imgui_adapter import ImguiAdapter
-from slangpy_imgui_bundle.render_targets.render_target import (
-    RenderContext,
-    RenderTarget,
-)
+from slangpy_imgui_bundle.render_targets.render_target import RenderTarget
 
 
 class App:
@@ -76,8 +73,12 @@ class App:
         self.window.on_gamepad_state = self.on_gamepad_state
 
         # Create dockspace.
-        main_context = RenderContext(device=self.device)
-        self._dockspace = Dockspace(main_context, self._curr_window_size)
+        self._dockspace = Dockspace(
+            DockspaceContext(
+                device=self.device,
+                window_size=self._curr_window_size,
+            )
+        )
 
         # Setup app states.
         self._start_time = time.time()

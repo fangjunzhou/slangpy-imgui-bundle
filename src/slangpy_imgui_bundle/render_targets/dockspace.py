@@ -2,6 +2,7 @@
 A dockspace implementation to host imgui windows, menus, and status bar.
 """
 
+from dataclasses import dataclass
 from typing import List
 import slangpy as spy
 from imgui_bundle import imgui, imgui_ctx
@@ -15,21 +16,24 @@ from slangpy_imgui_bundle.render_targets.render_target import (
 )
 
 
+@dataclass
+class DockspaceContext(RenderContext):
+    window_size: Observable[glm.ivec2]
+
+
 class Dockspace(RenderTarget):
-    menu_items: List[RenderTarget] = []
-    status_items: List[RenderTarget] = []
+    _menu_items: List[RenderTarget] = []
+    _status_items: List[RenderTarget] = []
 
     _window_size: glm.ivec2
 
-    def __init__(
-        self, context: RenderContext, window_size: Observable[glm.ivec2]
-    ) -> None:
+    def __init__(self, context: DockspaceContext) -> None:
         super().__init__(context)
 
         def update_window_size(size: glm.ivec2) -> None:
             self._window_size = glm.ivec2(size)
 
-        window_size.pipe(ops.distinct()).subscribe(update_window_size)
+        context.window_size.pipe(ops.distinct()).subscribe(update_window_size)
 
     def build(self, dockspace_id: int) -> None:
         """Build the dockspace layout.
@@ -41,7 +45,7 @@ class Dockspace(RenderTarget):
     def render(self, time: float, delta_time: float) -> None:
         # Render menu bar.
         with imgui_ctx.begin_main_menu_bar():
-            for item in self.menu_items:
+            for item in self._menu_items:
                 item.render(time, delta_time)
 
         # Dockspace.
@@ -79,5 +83,5 @@ class Dockspace(RenderTarget):
         )
         with imgui_ctx.begin("StatusBar", True, window_flags):
             with imgui_ctx.begin_menu_bar():
-                for item in self.status_items:
+                for item in self._status_items:
                     item.render(time, delta_time)
