@@ -9,20 +9,25 @@ from reactivex import Observable
 import reactivex.operators as ops
 from pyglm import glm
 
-from slangpy_imgui_bundle.render_target import RenderTarget
+from slangpy_imgui_bundle.render_targets.render_target import (
+    RenderContext,
+    RenderTarget,
+)
 
 
 class Dockspace(RenderTarget):
     menu_items: List[RenderTarget] = []
     status_items: List[RenderTarget] = []
 
-    window_size: glm.ivec2
+    _window_size: glm.ivec2
 
-    def __init__(self, device: spy.Device, window_size: Observable[glm.ivec2]) -> None:
-        super().__init__(device)
+    def __init__(
+        self, context: RenderContext, window_size: Observable[glm.ivec2]
+    ) -> None:
+        super().__init__(context)
 
         def update_window_size(size: glm.ivec2) -> None:
-            self.window_size = glm.ivec2(size)
+            self._window_size = glm.ivec2(size)
 
         window_size.pipe(ops.distinct()).subscribe(update_window_size)
 
@@ -43,7 +48,7 @@ class Dockspace(RenderTarget):
         side_bar_height = imgui.get_frame_height()
         imgui.set_next_window_pos((0.0, side_bar_height))
         imgui.set_next_window_size(
-            (self.window_size.x, self.window_size.y - 2 * side_bar_height)
+            (self._window_size.x, self._window_size.y - 2 * side_bar_height)
         )
         window_flags = (
             imgui.WindowFlags_.no_title_bar.value
@@ -60,8 +65,8 @@ class Dockspace(RenderTarget):
             imgui.dock_space(dockspace_id)
 
         # Render status bar.
-        imgui.set_next_window_pos((0.0, self.window_size.y - side_bar_height))
-        imgui.set_next_window_size((self.window_size.x, side_bar_height))
+        imgui.set_next_window_pos((0.0, self._window_size.y - side_bar_height))
+        imgui.set_next_window_size((self._window_size.x, side_bar_height))
         window_flags = (
             imgui.WindowFlags_.no_title_bar.value
             | imgui.WindowFlags_.no_collapse.value

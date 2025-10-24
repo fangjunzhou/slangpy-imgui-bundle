@@ -3,6 +3,12 @@ A slangpy imgui render target that will be rendered every frame.
 """
 
 import slangpy as spy
+from dataclasses import dataclass
+
+
+@dataclass
+class RenderContext:
+    device: spy.Device
 
 
 class RenderTarget:
@@ -11,8 +17,8 @@ class RenderTarget:
     :param device: The slangpy device setup by the application.
     """
 
-    def __init__(self, device: spy.Device) -> None:
-        self.device = device
+    def __init__(self, context: RenderContext) -> None:
+        self.device = context.device
 
     def render(self, time: float, delta_time: float) -> None:
         """Called every frame to render the target.
