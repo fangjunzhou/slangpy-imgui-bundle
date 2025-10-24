@@ -44,6 +44,7 @@ class ImguiAdapter:
 
         # Registered textures.
         self._textures = {}
+        self._texture_id = 0
 
         self.window = window
         self.device = device
@@ -105,13 +106,14 @@ class ImguiAdapter:
         # Resize ImGui display size.
         self.resize(self.window.width, self.window.height)
 
-    def register_texture(self, texture: spy.Texture) -> None:
-        texture_id = texture.shared_handle.value
+    def register_texture(self, texture: spy.Texture) -> int:
+        texture_id = self._texture_id
+        self._texture_id += 1
         sampler = self.device.create_sampler()
         self._textures[texture_id] = (texture, sampler)
+        return texture_id
 
-    def unregister_texture(self, texture: spy.Texture) -> None:
-        texture_id = texture.shared_handle.value
+    def unregister_texture(self, texture_id: int) -> None:
         if texture_id in self._textures:
             del self._textures[texture_id]
 
@@ -256,7 +258,7 @@ class ImguiAdapter:
         height, width, _ = texture_data.shape
 
         if self._font_texture is not None:
-            self.unregister_texture(self._font_texture)
+            self.unregister_texture(self.io.fonts.tex_id)
 
         self._font_texture = self.device.create_texture(
             type=spy.TextureType.texture_2d,
@@ -267,8 +269,7 @@ class ImguiAdapter:
             label="imgui_font_texture",
             data=texture_data,
         )
-        self.register_texture(self._font_texture)
-        self.io.fonts.tex_id = self._font_texture.shared_handle.value
+        self.io.fonts.tex_id = self.register_texture(self._font_texture)
         self.io.fonts.clear_tex_data()
 
     def resize(self, width: int, height: int, fb_scale: float = 1.0) -> None:
