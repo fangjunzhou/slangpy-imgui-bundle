@@ -7,7 +7,6 @@ from slangpy_imgui_bundle.render_targets.menu import (
     Menu,
     MenuItem,
 )
-from slangpy_imgui_bundle.render_targets.window import WindowArgs
 
 
 class ExampleDockspaceArgs(DockspaceArgs):

@@ -2,7 +2,7 @@
 A module defining a basic window render target for slangpy imgui applications.
 """
 
-from typing import Callable, Tuple, Unpack
+from typing import Callable, Tuple, Unpack, NotRequired
 from imgui_bundle import imgui
 from reactivex import Observable
 from slangpy_imgui_bundle.render_targets.render_target import (
@@ -12,8 +12,8 @@ from slangpy_imgui_bundle.render_targets.render_target import (
 
 
 class WindowArgs(RenderArgs):
-    open: Observable[bool] | None
-    on_close: Callable[[], None] | None
+    open: NotRequired[Observable[bool]]
+    on_close: NotRequired[Callable[[], None]]
 
 
 class Window(RenderTarget):
@@ -29,13 +29,14 @@ class Window(RenderTarget):
     def __init__(self, **kwargs: Unpack[WindowArgs]) -> None:
         super().__init__(**kwargs)
 
-        if kwargs["open"] is not None:
+        open_observable = kwargs.get("open")
+        if open_observable is not None:
 
             def update_open(open: bool) -> None:
                 self._open = open
 
-            kwargs["open"].subscribe(update_open)
-            self._on_close = kwargs["on_close"]
+            open_observable.subscribe(update_open)
+            self._on_close = kwargs.get("on_close")
 
     def render_window(self, time: float, delta_time: float, open: bool | None) -> bool:
         """Render the contents of the window.
