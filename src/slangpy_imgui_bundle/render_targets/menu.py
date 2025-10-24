@@ -36,6 +36,22 @@ class MenuItem(RenderTarget):
             self._on_open_changed(new_open)
 
 
+class SimpleMenuItemArgs(RenderArgs):
+    name: str
+    on_clicked: Callable[[], None]
+
+
+class SimpleMenuItem(RenderTarget):
+    def __init__(self, **kwargs: Unpack[SimpleMenuItemArgs]) -> None:
+        super().__init__(**kwargs)
+        self.name = kwargs["name"]
+        self._on_clicked = kwargs["on_clicked"]
+
+    def render(self, time: float, delta_time: float) -> None:
+        if imgui.menu_item_simple(self.name):
+            self._on_clicked()
+
+
 class MenuArgs(RenderArgs):
     name: str
     chilren: list[RenderTarget]

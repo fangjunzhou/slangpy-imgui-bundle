@@ -216,6 +216,10 @@ class ImguiAdapter:
                         command.clip_rect.z,
                         command.clip_rect.w,
                     )
+                    x = max(x, 0)
+                    y = max(y, 0)
+                    z = min(z, fb_w)
+                    w = min(w, fb_h)
 
                     pass_encoder.set_render_state(
                         {
