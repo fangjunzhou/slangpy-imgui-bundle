@@ -21,6 +21,7 @@ class App:
     window_size = glm.ivec2(960, 540)
     window_title = "SlangPy Application"
     window_resizable = True
+    fb_scale = 1.0
 
     # SGL config.
     device_type = spy.DeviceType.automatic
@@ -62,7 +63,7 @@ class App:
         self.io.set_log_filename("")
         # Enable docking.
         self.io.config_flags |= imgui.ConfigFlags_.docking_enable.value
-        self.adapter = ImguiAdapter(self.window, self.device)
+        self.adapter = ImguiAdapter(self.window, self.device, self.fb_scale)
 
         # Setup callbacks.
         self.window.on_resize = self.on_resize
@@ -83,6 +84,7 @@ class App:
         self._last_frame_time = self._start_time
 
     def on_resize(self, width: int, height: int) -> None:
+        self.adapter.fb_scale = self.fb_scale
         self.adapter.resize(width, height)
         self._curr_window_size.on_next(glm.ivec2(width, height))
 

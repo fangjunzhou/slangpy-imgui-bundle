@@ -35,7 +35,11 @@ class ImguiAdapter:
     The slangpy renderer adapter for ImGui Bundle.
     """
 
-    def __init__(self, window: spy.Window, device: spy.Device) -> None:
+    fb_scale: float = 1.0
+
+    def __init__(
+        self, window: spy.Window, device: spy.Device, fb_scale: float = 1.0
+    ) -> None:
         if not imgui.get_current_context():
             raise RuntimeError(
                 "No valid ImGui context. Use imgui.create_context() first and/or "
@@ -48,6 +52,7 @@ class ImguiAdapter:
 
         self.window = window
         self.device = device
+        self.fb_scale = fb_scale
 
         # Create window surface.
         self.surface = self.device.create_surface(self.window)
@@ -272,7 +277,7 @@ class ImguiAdapter:
         self.io.fonts.tex_id = self.register_texture(self._font_texture)
         self.io.fonts.clear_tex_data()
 
-    def resize(self, width: int, height: int, fb_scale: float = 1.0) -> None:
+    def resize(self, width: int, height: int) -> None:
         """Method to handle window resizing.
 
         :param width: The new width of the window.
@@ -280,13 +285,15 @@ class ImguiAdapter:
         """
         # Update ImGui display size.
         self.io.display_size = imgui.ImVec2(width, height)
-        self.io.display_framebuffer_scale = imgui.ImVec2(fb_scale, fb_scale)
+        self.io.display_framebuffer_scale = imgui.ImVec2(self.fb_scale, self.fb_scale)
         # Update framebuffer scale.
         self.device.wait()
         if width > 0 and height > 0:
-            self.surface.configure(int(width * fb_scale), int(height * fb_scale))
+            self.surface.configure(
+                int(width * self.fb_scale), int(height * self.fb_scale)
+            )
             self.frame_buffer = self._create_frame_buffer(
-                int(width * fb_scale), int(height * fb_scale)
+                int(width * self.fb_scale), int(height * self.fb_scale)
             )
         else:
             self.surface.unconfigure()
