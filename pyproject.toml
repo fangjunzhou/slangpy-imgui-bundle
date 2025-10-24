@@ -8,6 +8,7 @@ dependencies = [
     "imgui-bundle==1.6.3",
     "matplotlib>=3.10.7",
     "pyglm>=2.8.2",
+    "reactivex>=4.0.4",
     "slangpy>=0.37.0",
 ]
 

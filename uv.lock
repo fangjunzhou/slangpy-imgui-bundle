@@ -674,6 +674,18 @@ wheels = [
 ]
 
 [[package]]
+name = "reactivex"
+version = "4.0.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ef/63/f776322df4d7b456446eff78c4e64f14c3c26d57d46b4e06c18807d5d99c/reactivex-4.0.4.tar.gz", hash = "sha256:e912e6591022ab9176df8348a653fe8c8fa7a301f26f9931c9d8c78a650e04e8", size = 119177, upload-time = "2022-07-16T07:11:53.689Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/69/3f/2ed8c1b8fe3fc2ed816ba40554ef703aad8c51700e2606c139fcf9b7f791/reactivex-4.0.4-py3-none-any.whl", hash = "sha256:0004796c420bd9e68aad8e65627d85a8e13f293de76656165dffbcb3a0e3fb6a", size = 217791, upload-time = "2022-07-16T07:11:52.061Z" },
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -707,6 +719,7 @@ dependencies = [
     { name = "imgui-bundle" },
     { name = "matplotlib" },
     { name = "pyglm" },
+    { name = "reactivex" },
     { name = "slangpy" },
 ]
 
@@ -720,6 +733,7 @@ requires-dist = [
     { name = "imgui-bundle", specifier = "==1.6.3" },
     { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "pyglm", specifier = ">=2.8.2" },
+    { name = "reactivex", specifier = ">=4.0.4" },
     { name = "slangpy", specifier = ">=0.37.0" },
 ]
 

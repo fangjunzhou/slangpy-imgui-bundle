@@ -7,9 +7,13 @@ from typing import List, Sequence
 from imgui_bundle import imgui, implot3d
 import slangpy as spy
 from pyglm import glm
+import time
+from reactivex.subject import BehaviorSubject
 
 import slangpy_imgui_bundle
+from slangpy_imgui_bundle.dockspace import Dockspace
 from slangpy_imgui_bundle.imgui_adapter import ImguiAdapter
+from slangpy_imgui_bundle.render_target import RenderTarget
 
 
 class App:
@@ -22,6 +26,17 @@ class App:
     device_type = spy.DeviceType.automatic
     enable_debug_layer = False
     shader_paths = [slangpy_imgui_bundle.GUI_SHADER_PATH]
+
+    # Render targets.
+    _render_targets: List[RenderTarget] = []
+    _dockspace: Dockspace | None = None
+
+    # Application states.
+    _start_time: float = 0.0
+    _last_frame_time: float = 0.0
+    _curr_window_size: BehaviorSubject[glm.ivec2] = BehaviorSubject(
+        glm.ivec2(window_size)
+    )
 
     def __init__(self, user_shader_paths: List[Path] = []) -> None:
         self.window = spy.Window(
@@ -49,6 +64,7 @@ class App:
         self.io.config_flags |= imgui.ConfigFlags_.docking_enable.value
         self.adapter = ImguiAdapter(self.window, self.device)
 
+        # Setup callbacks.
         self.window.on_resize = self.on_resize
         self.window.on_mouse_event = self.on_mouse_event
         self.window.on_keyboard_event = self.on_keyboard_event
@@ -56,8 +72,16 @@ class App:
         self.window.on_gamepad_event = self.on_gamepad_event
         self.window.on_gamepad_state = self.on_gamepad_state
 
+        # Create dockspace.
+        self._dockspace = Dockspace(self.device, self._curr_window_size)
+
+        # Setup app states.
+        self._start_time = time.time()
+        self._last_frame_time = self._start_time
+
     def on_resize(self, width: int, height: int) -> None:
         self.adapter.resize(width, height)
+        self._curr_window_size.on_next(glm.ivec2(width, height))
 
     def on_mouse_event(self, event: spy.MouseEvent) -> None:
         self.adapter.mouse_event(event)
@@ -75,19 +99,24 @@ class App:
     def on_drop_files(self, file_paths: Sequence[str]) -> None:
         pass
 
-    def render(self, time: float, delta_time: float) -> None:
-        pass
-
     def run(self) -> None:
         while not self.window.should_close():
+            current_time = time.time()
+            elapsed_time = current_time - self._start_time
+            delta_time = current_time - self._last_frame_time
+            self._last_frame_time = current_time
+
             # Poll events.
             self.window.process_events()
             # Start ImGui frame.
             imgui.new_frame()
 
-            # Your application code here.
-            imgui.show_demo_window()
-            implot3d.show_demo_window()
+            # Render dockspace.
+            if self._dockspace is not None:
+                self._dockspace.render(elapsed_time, delta_time)
+            # Render all render targets.
+            for target in self._render_targets:
+                target.render(elapsed_time, delta_time)
 
             imgui.render()
             # Render ImGui.
