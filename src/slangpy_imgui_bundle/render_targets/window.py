@@ -14,8 +14,8 @@ from slangpy_imgui_bundle.render_targets.render_target import (
 
 @dataclass
 class WindowContext(RenderContext):
-    open: Observable[bool]
-    on_close: Callable[[], None]
+    open: Observable[bool] | None = None
+    on_close: Callable[[], None] | None = None
 
 
 class Window(RenderTarget):
@@ -25,18 +25,21 @@ class Window(RenderTarget):
     size_max: Tuple[float, float] = (imgui.FLT_MAX, imgui.FLT_MAX)
     window_flags: int = imgui.WindowFlags_.none.value
 
-    _open: bool
+    _open: bool | None = None
+    _on_close: Callable[[], None] | None = None
 
     def __init__(self, context: WindowContext) -> None:
         super().__init__(context)
 
-        def update_open(open: bool) -> None:
-            self._open = open
+        if context.open is not None:
 
-        context.open.subscribe(update_open)
-        self.on_close = context.on_close
+            def update_open(open: bool) -> None:
+                self._open = open
 
-    def render_window(self, time: float, delta_time: float) -> bool:
+            context.open.subscribe(update_open)
+            self._on_close = context.on_close
+
+    def render_window(self, time: float, delta_time: float, open: bool | None) -> bool:
         """Render the contents of the window.
 
         :param time: Current time in seconds.
@@ -46,8 +49,11 @@ class Window(RenderTarget):
         return True
 
     def render(self, time: float, delta_time: float) -> None:
-        if self._open:
+        if self._open or self._open is None:
             imgui.set_next_window_size(self.size, imgui.Cond_.once.value)
             imgui.set_next_window_size_constraints(self.size_min, self.size_max)
-            if not self.render_window(time, delta_time):
-                self.on_close()
+            if (
+                not self.render_window(time, delta_time, self._open)
+                and self._on_close is not None
+            ):
+                self._on_close()
