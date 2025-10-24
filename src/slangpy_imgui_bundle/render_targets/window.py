@@ -12,8 +12,8 @@ from slangpy_imgui_bundle.render_targets.render_target import (
 
 
 class WindowArgs(RenderArgs):
-    open: NotRequired[Observable[bool]]
-    on_close: NotRequired[Callable[[], None]]
+    open: NotRequired[Observable[bool] | None]
+    on_close: NotRequired[Callable[[], None] | None]
 
 
 class Window(RenderTarget):

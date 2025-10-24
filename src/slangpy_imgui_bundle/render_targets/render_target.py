@@ -2,12 +2,14 @@
 A slangpy imgui render target that will be rendered every frame.
 """
 
-from typing import TypedDict, Unpack
+from typing import NotRequired, TypedDict, Unpack
 import slangpy as spy
+from slangpy_imgui_bundle.imgui_adapter import ImguiAdapter
 
 
 class RenderArgs(TypedDict):
-    device: spy.Device
+    device: NotRequired[spy.Device | None]
+    adapter: NotRequired[ImguiAdapter | None]
 
 
 class RenderTarget:
@@ -17,7 +19,8 @@ class RenderTarget:
     """
 
     def __init__(self, **kwargs: Unpack[RenderArgs]) -> None:
-        self.device = kwargs["device"]
+        self._device = kwargs.get("device")
+        self._adapter = kwargs.get("adapter")
 
     def render(self, time: float, delta_time: float) -> None:
         """Called every frame to render the target.

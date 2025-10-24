@@ -23,11 +23,13 @@ class ExampleDockspace(Dockspace):
         super().__init__(**kwargs)
         self._menu_items = [
             Menu(
-                device=self.device,
+                device=self._device,
+                adapter=self._adapter,
                 name="Views",
                 chilren=[
                     MenuItem(
-                        device=self.device,
+                        device=self._device,
+                        adapter=self._adapter,
                         name="ImGui Demo Window",
                         open=kwargs["imgui_demo_opened"],
                         on_open_changed=lambda opened: kwargs[
@@ -35,7 +37,8 @@ class ExampleDockspace(Dockspace):
                         ].on_next(opened),
                     ),
                     MenuItem(
-                        device=self.device,
+                        device=self._device,
+                        adapter=self._adapter,
                         name="ImPlot Demo Window",
                         open=kwargs["implot_demo_opened"],
                         on_open_changed=lambda opened: kwargs[
@@ -66,11 +69,13 @@ class ExampleApp(App):
         self._render_targets = [
             ImGuiDemoWindow(
                 device=self.device,
+                adapter=self.adapter,
                 open=self._imgui_demo_opened,
                 on_close=lambda: self._imgui_demo_opened.on_next(False),
             ),
             ImPlot3DDemoWindow(
                 device=self.device,
+                adapter=self.adapter,
                 open=self._implot_demo_opened,
                 on_close=lambda: self._implot_demo_opened.on_next(False),
             ),
@@ -78,6 +83,7 @@ class ExampleApp(App):
 
         self._dockspace = ExampleDockspace(
             device=self.device,
+            adapter=self.adapter,
             window_size=self._curr_window_size,
             imgui_demo_opened=self._imgui_demo_opened,
             implot_demo_opened=self._implot_demo_opened,
