@@ -6,6 +6,7 @@ from slangpy_imgui_bundle.example.demo_windows import (
     ImGuiDemoWindow,
     ImPlot3DDemoWindow,
 )
+from slangpy_imgui_bundle.example.open_file_menu_item import OpenFileMenuItem
 from slangpy_imgui_bundle.render_targets.dockspace import Dockspace, DockspaceArgs
 from slangpy_imgui_bundle.render_targets.menu import (
     Menu,
@@ -22,6 +23,17 @@ class ExampleDockspace(Dockspace):
     def __init__(self, **kwargs: Unpack[ExampleDockspaceArgs]) -> None:
         super().__init__(**kwargs)
         self._menu_items = [
+            Menu(
+                device=self._device,
+                adapter=self._adapter,
+                name="File",
+                chilren=[
+                    OpenFileMenuItem(
+                        device=self._device,
+                        adapter=self._adapter,
+                    )
+                ],
+            ),
             Menu(
                 device=self._device,
                 adapter=self._adapter,
@@ -46,7 +58,7 @@ class ExampleDockspace(Dockspace):
                         ].on_next(opened),
                     ),
                 ],
-            )
+            ),
         ]
 
     def build(self, dockspace_id: int) -> None:
