@@ -8,6 +8,7 @@ from imgui_bundle import imgui, implot3d
 import slangpy as spy
 from pyglm import glm
 import time
+import asyncio
 from reactivex.subject import BehaviorSubject
 
 import slangpy_imgui_bundle
@@ -104,7 +105,7 @@ class App:
     def on_drop_files(self, file_paths: Sequence[str]) -> None:
         pass
 
-    def run(self) -> None:
+    async def run(self) -> None:
         while not self.window.should_close():
             current_time = time.time()
             elapsed_time = current_time - self._start_time
@@ -126,3 +127,6 @@ class App:
             imgui.render()
             # Render ImGui.
             self.adapter.render(imgui.get_draw_data())
+
+            # Yield to event loop.
+            await asyncio.sleep(0)

@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from slangpy_imgui_bundle.example.app import ExampleApp
 
 if __name__ == "__main__":
@@ -6,4 +7,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     app = ExampleApp()
-    app.run()
+    asyncio.run(app.run())
