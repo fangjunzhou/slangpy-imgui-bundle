@@ -102,6 +102,18 @@ class ImguiAdapter:
             ],
         )
 
+        # Create vertex and index buffers.
+        self.vbo = self.device.create_buffer(
+            usage=spy.BufferUsage.vertex_buffer | spy.BufferUsage.shader_resource,
+            label="imgui_vertex_buffer",
+            size=imgui.VERTEX_SIZE * 65536,
+        )
+        self.ibo = self.device.create_buffer(
+            usage=spy.BufferUsage.index_buffer | spy.BufferUsage.shader_resource,
+            label="imgui_index_buffer",
+            size=imgui.INDEX_SIZE * 65536,
+        )
+
         # Get ImGui IO.
         self.io = imgui.get_io()
         # Font texture.
@@ -170,20 +182,12 @@ class ImguiAdapter:
             vtx_arr = (vtx_type).from_address(commands.vtx_buffer.data_address())
             idx_arr = (idx_type).from_address(commands.idx_buffer.data_address())
             # Convert to numpy arrays.
-            vtx_arr = np.frombuffer(vtx_arr, dtype=np.uint8)
-            idx_arr = np.frombuffer(idx_arr, dtype=np.uint32)
+            vtx_arr_np = np.frombuffer(vtx_arr, dtype=np.uint8)
+            idx_arr_np = np.frombuffer(idx_arr, dtype=np.uint32)
             # Update vertex buffer.
-            vertex_buffer = self.device.create_buffer(
-                usage=spy.BufferUsage.vertex_buffer | spy.BufferUsage.shader_resource,
-                label="imgui_vertex_buffer",
-                data=vtx_arr,
-            )
+            command_encoder.upload_buffer_data(self.vbo, 0, vtx_arr_np)
             # Update index buffer.
-            index_buffer = self.device.create_buffer(
-                usage=spy.BufferUsage.index_buffer | spy.BufferUsage.shader_resource,
-                label="imgui_index_buffer",
-                data=idx_arr,
-            )
+            command_encoder.upload_buffer_data(self.ibo, 0, idx_arr_np)
 
             for command in commands.cmd_buffer:
                 texture_sampler = self._textures.get(command.texture_id)
@@ -238,8 +242,8 @@ class ImguiAdapter:
                                     }
                                 )
                             ],
-                            "vertex_buffers": [vertex_buffer],
-                            "index_buffer": index_buffer,
+                            "vertex_buffers": [self.vbo],
+                            "index_buffer": self.ibo,
                             "index_format": (
                                 spy.IndexFormat.uint16
                                 if imgui.INDEX_SIZE == 2
