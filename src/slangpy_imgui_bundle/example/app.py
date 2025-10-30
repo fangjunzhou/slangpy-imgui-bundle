@@ -27,7 +27,7 @@ class ExampleDockspace(Dockspace):
                 device=self._device,
                 adapter=self._adapter,
                 name="File",
-                chilren=[
+                children=[
                     OpenFileMenuItem(
                         device=self._device,
                         adapter=self._adapter,
@@ -38,7 +38,7 @@ class ExampleDockspace(Dockspace):
                 device=self._device,
                 adapter=self._adapter,
                 name="Views",
-                chilren=[
+                children=[
                     MenuItem(
                         device=self._device,
                         adapter=self._adapter,

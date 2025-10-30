@@ -54,7 +54,7 @@ class SimpleMenuItem(RenderTarget):
 
 class MenuArgs(RenderArgs):
     name: str
-    chilren: list[RenderTarget]
+    children: list[RenderTarget]
 
 
 class Menu(RenderTarget):
@@ -64,7 +64,7 @@ class Menu(RenderTarget):
     def __init__(self, **kwargs: Unpack[MenuArgs]) -> None:
         super().__init__(**kwargs)
         self._name = kwargs["name"]
-        self._children = kwargs["chilren"]
+        self._children = kwargs["children"]
 
     def render(self, time: float, delta_time: float) -> None:
         if imgui.begin_menu(self._name):
