@@ -27,6 +27,7 @@ REVERSE_KEY_MAP = {
     spy.KeyCode.backspace: imgui.Key.backspace,
     spy.KeyCode.enter: imgui.Key.enter,
     spy.KeyCode.escape: imgui.Key.escape,
+    spy.KeyCode.left_shift: imgui.Key.left_shift,
 }
 
 
